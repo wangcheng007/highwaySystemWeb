@@ -14,12 +14,21 @@ const Util = {
             headers: {
                 'Accept': 'application/json'
             },
+            withCredentials: true,
+            crossOrigin: true,
             contentType: options.contentType || 'application/x-www-form-urlencoded',
             type: dataType,
             data:  data
         };
 
         return Reqwest(setting).then(function (resData) {
+            if (resData.returnCode !== '1001') {
+                Notification.error({
+                    title: '错误',
+                    message: resData.message,
+                    duration: 2000
+                });
+            }
             return resData;
         }).fail(() => {
             Notification.error({
