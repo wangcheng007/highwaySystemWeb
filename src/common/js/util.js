@@ -1,12 +1,15 @@
 import Reqwest from 'reqwest';
 import { Notification } from 'element-react';
 
+const http = '//localhost:3000';
 const Util = {
     fetch: function(options) {
         let url = options.url;
         let type = options.type || options.method || 'POST';
         let data = options.data || {};
         let dataType = options.dataType || 'json';
+
+        url = url.indexOf('//') > -1 ? url : http + url;
 
         let setting = {
             url: url,
