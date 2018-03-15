@@ -27,22 +27,8 @@ export default class Login extends React.Component {
             dataType: 'json'
         }).then((res) => {
             if (res.returnCode === '1001') {
-                window.username = res.data.username;
+                window.localStorage.setItem('user', JSON.stringify(res.data.user));
                 hashHistory.push('/home');
-            }
-        });
-    }
-
-    logout () {
-        Util.fetch({
-            url: '/user/logout',
-            type: 'get',
-            dataType: 'json'
-        }).then((res) => {
-            console.log(res);
-            if (res.returnCode === '1001') {
-                hashHistory.push('/');
-                delete window.user;
             }
         });
     }
@@ -61,12 +47,20 @@ export default class Login extends React.Component {
                     backgroundSize: '100% 100%'
                 }}
             >
-                <div className='main-login-content'>
-                    <Input placeholder="请输入账号" size='small' onChange={(val) => this.change(val, 'username')}/>
-                    <Input placeholder="请输入密码" className='m-t-5' type='password' size='small' onChange={(val) => this.change(val, 'password')}/>
+                <div className='main-login-content flex flex-center-align flex-center-justify flex-column-direction p-15'>
+                    <div className='username-box flex flex-baseline-align'>
+                        <label>账号：</label>
+                        <Input placeholder="请输入账号" size='small' onChange={(val) => this.change(val, 'username')}/>
+                    </div>
+                    
+                    <div className='password-box flex flex-baseline-align m-t-10'>
+                        <label>密码：</label>
+                        <Input placeholder="请输入密码" type='password' size='small' onChange={(val) => this.change(val, 'password')}/>
+                    </div>
 
-                    <Button type='primary' onClick={() => this.login()}>登录</Button>
-                    <Button type='primary' onClick={() => this.logout()}>退出</Button>
+                    <div className='m-t-15'>
+                        <Button style={{width: '220px'}} type='primary' onClick={() => this.login()}>登录</Button>
+                    </div>
                 </div>
             </div>
         );

@@ -2,13 +2,11 @@ import React, { Component } from 'react';
 import Util from '../../common/js/util';
 
 export default class Layout extends Component {
-    constructor(){
-        super();
-        this.state = {
-            user: {
-                username: '',
-            }
-        };
+    constructor(props){
+        super(props);
+        // this.state = {
+        //     user: {}
+        // };
     }
     setStateSafe(obj, fun) {
         if(this.mounted) {
@@ -31,14 +29,10 @@ export default class Layout extends Component {
             type: 'get',
             dataType: 'json'
         }).then((resData) => {
-            console.log(resData);
             if(resData && resData.returnCode === '1001'){
-                this.setStateSafe({
-                    user: {
-                        username: resData.data.username,
-                    }
-                });
-                window.username = window.username ? window.username : resData.data.username;
+                if (!window.localStorage.getItem('user')) {
+                    window.localStorage.setItem('user', JSON.stringify(resData.data.user));
+                }
             } else {
                 window.location.href = '/';
             }

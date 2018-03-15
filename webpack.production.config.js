@@ -23,7 +23,6 @@ module.exports = {
 			use: ['babel-loader']
 		}, {
 			test: /\.css$/,
-			exclude: /node_modules/,
 			use: ExtractTextPlugin.extract({
 				fallbackLoader: 'style-loader',
 				use: ['css-loader', 'postcss-loader']
@@ -41,7 +40,6 @@ module.exports = {
 			use: ['url-loader?limit=5000&name=img/[name].[chunkhash:8].[ext]']
 		}, {
 			test: /\.(woff|woff2|svg|eot|ttf)$/,
-			exclude: /node_modules/,
 			use: ['url-loader?limit=5000&name=/fonts/[name].[ext]']
 		}]
 	},
