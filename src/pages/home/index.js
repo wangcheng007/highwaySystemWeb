@@ -9,21 +9,13 @@ import './style/index.less';
 export default class Home extends React.Component {
     constructor(props) {
         super(props);
-        
-        this.state = {
-            list:[{
-                text: '权限管理'
-            }]
-        }
     }
 
     render() {
-        const { list } = this.state;
-
         return (
             <div>
                 <TopNavBar />
-                <NavSlider list={list}/>
+                <NavSlider />
             </div>
         );
     }

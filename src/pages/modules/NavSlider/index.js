@@ -1,29 +1,47 @@
 import React, { Component } from 'react';
 
+import Util from '../../../common/js/util';
+import defaultImg from '../../../common/img/default.jpeg';
+
+import './style/index.less';
+
 export default class NavSlider extends Component {
     constructor (props) {
         super(props);
 
-        console.log(props);
         this.state = {
-            list: props.list
+            userPermission: {},
+            height: 0
         }
     }
 
+    componentDidMount () {
+        Util.fetch({
+            url: '/user/getPerssion',
+            type: 'get',
+            dataType: 'json'
+        }).then((res) => {
+            console.log(res);
+            if (res.returnCode === '1001') {
+                this.setState({
+                    userPermission: res.data.user_permission,
+                    height: document.body.clientHeight - 60
+                });
+            }
+        });
+    }
+
     render () {
-        const { list } = this.state;
+        const { height, userPermission } = this.state;
 
         return (
-            <div>
-                {
-                    list.map((item, index) => {
-                        return (
-                            <div key={index}>
-                                {item.text}
-                            </div>
-                        );
-                    })
-                }
+            <div className='module-nav-slider bg-black' style={{height: height}}>
+                <div className='user-info m-t-15 flex flex-center-align flex-column-direction'>
+                    <img src={userPermission.img || defaultImg}/>
+                    <div className='text text-white text-mini m-t-5'>
+                        {userPermission.username}
+                    </div>
+                </div>
             </div>
         );
     }
