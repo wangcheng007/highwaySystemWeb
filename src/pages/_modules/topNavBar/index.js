@@ -66,7 +66,7 @@ export default class TopNavBar extends Component {
                             }
                             <div className='todo m-r-5'>
                                 <Badge isDot>
-                                    <i className='el-icon-time text-white'></i>
+                                    <i className='el-icon-information text-white'></i>
                                 </Badge>
                             </div>
                         </div>

@@ -1,0 +1,56 @@
+.module-nav-slider {
+    width: 240px;
+    overflow: hidden;
+
+    .user-info {
+        img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+        }
+    }
+
+    .permission-list {
+        width: 260px;
+        overflow-y: scroll;
+
+        .permission-item {
+            height: 40px;
+            cursor: pointer;
+            &:hover{
+                color: rgb(114, 122, 3);
+            }
+        }
+
+        .active {
+            color: rgb(114, 122, 3);
+        }
+
+        .permission-children {
+            padding: 0px 30px;
+            cursor: pointer;
+            &:hover{
+                color: rgb(114, 122, 3);
+            }
+
+            .permission-child {
+                padding: 5px 0;
+                &:hover{
+                    color: rgb(114, 122, 3);
+                }
+            }
+            .active {
+                color: rgb(114, 122, 3);
+            }
+        }
+
+        .checked {
+            display: block;
+        }
+
+        .unchecked {
+            display: none;
+        }
+    }
+    
+}

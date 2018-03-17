@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
+import NavSlider from '../_modules/navSlider/index';
+import TopNavBar from '../_modules/topNavBar/index';
+
 import Util from '../../common/js/util';
+import './style/index.less';
 
 export default class Layout extends Component {
     constructor(props){
         super(props);
-        // this.state = {
-        //     user: {}
-        // };
     }
     setStateSafe(obj, fun) {
         if(this.mounted) {
@@ -41,8 +42,18 @@ export default class Layout extends Component {
 
     render(){
         return (
-            <div>
-                { this.props.children }
+            <div id='J_Page'>
+                <div id='J_Slider'>
+                    <TopNavBar />
+                </div>
+
+                <div className='J_Content flex'>
+                    <NavSlider />
+                    <div className='p-15'>
+                        { this.props.children }
+                    </div>
+                </div>
+               
             </div>
         );
     }
