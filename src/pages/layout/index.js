@@ -3,12 +3,16 @@ import NavSlider from '../_modules/navSlider/index';
 import TopNavBar from '../_modules/topNavBar/index';
 
 import Util from '../../common/js/util';
-import './style/index.less';
 
 export default class Layout extends Component {
     constructor(props){
         super(props);
+
+        this.state = {
+            height: 0
+        }
     }
+
     setStateSafe(obj, fun) {
         if(this.mounted) {
             this.setState(obj, fun);
@@ -18,6 +22,12 @@ export default class Layout extends Component {
     componentWillMount() {
         this.mounted = true;
         this.getUserInfo();
+    }
+
+    componentDidMount () {
+        this.setState({
+            height: document.body.clientHeight - 60
+        });
     }
 
     componentWillUnmount() {
@@ -41,15 +51,24 @@ export default class Layout extends Component {
     }
 
     render(){
+        const { height } = this.state;
+
         return (
-            <div id='J_Page'>
-                <div id='J_Slider'>
+            <div className='J_Page flex flex-column-direction' style={{width: '1265px'}}>
+                <div className='J_Slider' style={{height: '60px'}}>
                     <TopNavBar />
                 </div>
 
-                <div className='J_Content flex'>
+                <div className='J_Content flex-1 flex'>
                     <NavSlider />
-                    <div className='p-15'>
+                    <div
+                        className='p-15 flex-1 bg-gray' 
+                        style={{
+                            height: `${height - 60}px`,
+                            overflowX: 'hidden',
+                            overflowY: 'scroll'
+                        }}
+                    >
                         { this.props.children }
                     </div>
                 </div>

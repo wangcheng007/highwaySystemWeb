@@ -14,6 +14,7 @@ import LoginView from '../pages/login/index';
 import HomeView from '../pages/home/index';
 import LayoutView from '../pages/layout/index';
 import UserInfoView from '../pages/userInfo/index';
+import UserManageView from '../pages/userManage/index';
 
 export const routes = (
 	<Router history={hashHistory} render={applyRouterMiddleware(useScroll())}>
@@ -21,6 +22,7 @@ export const routes = (
 		<Route path='/home' component={LayoutView}>
 			<IndexRoute component={HomeView} />
 			<Route path='/userInfo' component={UserInfoView} />
+			<Route path='/userManage' component={UserManageView} />
 		</Route>
 	</Router>
 );
