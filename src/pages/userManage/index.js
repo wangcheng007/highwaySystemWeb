@@ -1,6 +1,7 @@
 import React from 'react';
-import { Table } from 'element-react';
+import { Table, Button } from 'element-react';
 import Breadcrumb from '../_modules/breadcrumb';
+import Form from '../_modules/form';
 
 import Util from '../../common/js/util';
 import './style/index.less';
@@ -42,6 +43,14 @@ export default class UserManage extends React.Component {
         });
     }
 
+    query() {
+        console.log(Form.getData('user-manage-query'));
+    }
+
+    clear() {
+        Form.clearData('user-manage-query');
+    }
+
     render() {
         const { breadList, columns, datas } = this.state;
 
@@ -50,6 +59,10 @@ export default class UserManage extends React.Component {
                 <Breadcrumb breadList={breadList} />
 
                 <div className='userManage-content bg-white p-15 m-t-15'>
+                    <Form form='user-manage-query'/>
+
+                    <Button onClick={() => this.query()}>确定</Button>
+                    <Button onClick={() => this.clear()}>清空</Button>
                     <Table
                         style={{width: '100%'}}
                         columns={columns}

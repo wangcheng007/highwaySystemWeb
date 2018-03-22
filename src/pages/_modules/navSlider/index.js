@@ -52,7 +52,7 @@ class NavItem extends Component {
                                     <i className={`el-icon-${data.small_img}`}></i>
                                     <span className='m-l-10'>{data.permission_name}</span>
                                 </div>
-                                <i className={data.children.length === 0 ? 'el-icon-arrow-right' : (check ? 'el-icon-arrow-up' : 'el-icon-arrow-down')}></i>
+                                <i className={data.children.length === 0 ? 'el-icon-arrow-right m-r-15' : (check ? 'el-icon-arrow-up m-r-15' : 'el-icon-arrow-down m-r-15')}></i>
                             </div>
                         </Link>
                     ) : (
@@ -65,7 +65,7 @@ class NavItem extends Component {
                                 <i className={`el-icon-${data.small_img}`}></i>
                                 <span className='m-l-10'>{data.permission_name}</span>
                             </div>
-                            <i className={data.children.length === 0 ? 'el-icon-arrow-right' : (check ? 'el-icon-arrow-up' : 'el-icon-arrow-down')}></i>
+                            <i className={data.children.length === 0 ? 'el-icon-arrow-right m-r-15' : (check ? 'el-icon-arrow-up m-r-15' : 'el-icon-arrow-down m-r-15')}></i>
                         </div>
                     )
                 }
@@ -80,7 +80,7 @@ class NavItem extends Component {
                                             <i className={`el-icon-${item.small_img}`}></i>
                                             <span className='m-l-10'>{item.permission_name}</span>
                                         </div>
-                                        <i className='el-icon-arrow-right'></i>
+                                        <i className='el-icon-arrow-right m-r-15'></i>
                                     </div>
                                 </Link>
                             );
