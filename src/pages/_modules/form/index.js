@@ -1,31 +1,7 @@
 import React, { Component } from 'react';
-import { Form, Input, Select, DatePicker } from 'element-react';
+import { Form, Input, Select, DatePicker, Button } from 'element-react';
 
 import './style/index.less';
-
-const options = [{
-    type: 'text',
-    lable: '姓名',
-    name: 'username',
-    placeholder: '请输入用户名'
-}, {
-    type: 'select',
-    label: '部门',
-    name: 'department',
-    placeholder: '请选择部门',
-    options: [{
-        text: 'xx',
-        value: 1
-    }, {
-        text: 'xo',
-        value: 2
-    }]
-}, {
-    type: 'date',
-    label: '日期',
-    name: 'date',
-    placeholder: '请选择时间'
-}];
 
 export default class ModuleForm extends Component {
     static forms = {};
@@ -54,11 +30,13 @@ export default class ModuleForm extends Component {
         super(props);
         ModuleForm.instance = this;
 
-        let obj = this.initData(options);
+        let obj = this.initData(props.data);
+
         this.state = {
-            options: props.options || options,
+            options: props.data,
             form: props.form,
-            obj: obj
+            obj: obj,
+            callback: props.callback
         };
     }
 
@@ -68,6 +46,19 @@ export default class ModuleForm extends Component {
 
     componentWillUnmount () {
         ModuleForm.remove(this.props.form);
+    }
+
+    componentWillReceiveProps (nextProps) {
+        if (!this.state.options || !this.state.options.length) {
+            let obj = this.initData(nextProps.data);
+
+            this.state = {
+                options: nextProps.data,
+                form: nextProps.form,
+                obj: obj,
+                callback: nextProps.callback
+            };
+        }
     }
 
     initData(options) {
@@ -118,7 +109,7 @@ export default class ModuleForm extends Component {
     }
 
     render () {
-        const { options, obj } = this.state;
+        const { options, obj, callback } = this.state;
 
         return (
             <div className='module-form flex'>
@@ -127,7 +118,7 @@ export default class ModuleForm extends Component {
                         options && options.length ? options.map((item, index) => {
                             if (item.type === 'text') {
                                 return (
-                                    <Form.Item key={index}>      
+                                    <Form.Item key={index} className='form-item'>      
                                         <Input value={obj[item.name]} placeholder={item.placeholder} key={index} onChange={(value) => this.changgeInputValue(value, item.name)}/>
                                     </Form.Item>
                                 );
@@ -138,7 +129,7 @@ export default class ModuleForm extends Component {
                                             {
                                                 item.options.map((option,index) => {
                                                     return (
-                                                        <Select.Option key={index} label={option.text} value={option.value} />
+                                                        <Select.Option key={index} label={option.label} value={option.value} />
                                                     );
                                                 }) 
                                             }
@@ -158,6 +149,30 @@ export default class ModuleForm extends Component {
                             }
                         }) : null
                     }
+                    <div className='operate-buttons'>
+                        {
+                            callback.query ? (
+                                <Form.Item>
+                                    <Button size='small' type='info' icon='search' onClick={() => callback.query()}>搜索</Button>
+                                </Form.Item>
+                            ) : null
+                        }
+                        {
+                            callback.reset ? (
+                                <Form.Item>
+                                    <Button size='small' type='info' icon='close' onClick={() => callback.reset()}>清空</Button>
+                                </Form.Item>
+                            ) : null
+                        }
+                        {
+                            callback.add ? (
+                                <Form.Item>
+                                    <Button size='small' type='info' icon='plus' onClick={() => callback.add()}>新增</Button>
+                                </Form.Item>
+                            ) : null
+                        }
+                    </div>
+                    
                 </Form>
             </div>
         );

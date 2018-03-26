@@ -24,6 +24,7 @@
   "dependencies": {
     "element-react": "1.4.8",
     "element-theme-default": "^1.4.13",
+    "pubsub-js": "^1.6.0",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
     "react-router": "^2.0.0",
