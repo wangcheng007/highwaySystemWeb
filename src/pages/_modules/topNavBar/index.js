@@ -72,7 +72,7 @@ export default class TopNavBar extends Component {
                         </div>
                         <div className='user-info flex flex-center-align m-r-15'>
                             <img src={defaultImg} className='user-img m-r-15'/>
-                            <span className='text text-white m-r-15'>{JSON.parse(window.localStorage.getItem('user')).username}</span>
+                            <span className='text text-white m-r-15'>{JSON.parse(window.localStorage.getItem('userinfo')).username}</span>
                         </div>
 
                         <Tooltip effect='dark' content='退出登录' placement='bottom-end'>

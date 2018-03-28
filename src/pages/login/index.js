@@ -27,7 +27,7 @@ export default class Login extends React.Component {
             dataType: 'json'
         }).then((res) => {
             if (res.returnCode === '1001') {
-                window.localStorage.setItem('user', JSON.stringify(res.data.user));
+                window.localStorage.setItem('userinfo', JSON.stringify(res.data.userinfo));
                 hashHistory.push('/home');
             }
         });

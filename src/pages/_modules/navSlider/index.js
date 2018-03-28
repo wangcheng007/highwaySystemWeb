@@ -103,7 +103,7 @@ export default class NavSlider extends Component {
         this.state = {
             data: [],
             height: 0,
-            user: JSON.parse(window.localStorage.getItem('user'))
+            user: JSON.parse(window.localStorage.getItem('userinfo'))
         }
     }
 
@@ -128,7 +128,7 @@ export default class NavSlider extends Component {
         return (
             <div className='module-nav-slider bg-black flex flex-column-direction' style={{height: height}}>
                 <div className='user-info m-t-15 flex flex-center-align flex-column-direction'>
-                    <img src={user.img || defaultImg}/>
+                    <img src={user.img ? user.img : defaultImg}/>
                     <div className='text text-white text-sm m-t-5'>
                         {user.username}
                     </div>
@@ -136,11 +136,11 @@ export default class NavSlider extends Component {
 
                 <div className='permission-list flex-1'>
                     {
-                        data.length && data.map((item, index) => {
+                        data.length ? data.map((item, index) => {
                             return (
                                 <NavItem data={item} index={index} key={index}/>
                             );
-                        })
+                        }) : null
                     }
                 </div>
                 

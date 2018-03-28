@@ -35,7 +35,7 @@ export default class ModalModel extends React.Component {
         const { transferData, transferValue } = this.state;
 
         return (
-            <div>
+            <div style={this.props.style}>
                 <div style={{position: 'absolute', zIndex: '2001'}}>
                     <div className='el-message-box__wrapper'>
                         <div className='el-message-box'>

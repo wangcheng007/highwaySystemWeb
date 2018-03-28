@@ -139,9 +139,11 @@ export default class ModuleForm extends Component {
                             } else if (item.type === 'date') {
                                 return (
                                     <Form.Item key={index}>
-                                        <DatePicker 
+                                        <DatePicker
+                                            isShowTime={true}
                                             value={obj[item.name] ? new Date(obj[item.name]) : null}
                                             placeholder={item.placeholder}
+                                            format={'yyyy-MM-dd HH:mm:ss'}
                                             onChange={(date) => this.changeDateValue(date, item.name)}
                                         />
                                     </Form.Item>

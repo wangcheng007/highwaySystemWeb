@@ -41,8 +41,8 @@ export default class Layout extends Component {
             dataType: 'json'
         }).then((resData) => {
             if(resData && resData.returnCode === '1001'){
-                if (!window.localStorage.getItem('user')) {
-                    window.localStorage.setItem('user', JSON.stringify(resData.data.user));
+                if (!window.localStorage.getItem('userinfo')) {
+                    window.localStorage.setItem('userinfo', JSON.stringify(resData.data.userinfo));
                 }
             } else {
                 window.location.href = '/';

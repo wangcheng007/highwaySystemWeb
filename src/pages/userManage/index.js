@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
-import { Table, Button, Form, Input, Select } from 'element-react';
+import { Table, Button, Form, Input, Select, Message, Pagination, MessageBox } from 'element-react';
 import Breadcrumb from '../_modules/breadcrumb';
-import MoudleForm from '../_modules/form';
-import MoudleModal from '../_modules/modal';
+import ModuleForm from '../_modules/form';
+import ModuleModal from '../_modules/modal';
+import ModalForm from '../_modules/form/_module/modalForm';
 
 import Util from '../../common/js/util';
+import config from './confog/index';
 import './style/index.less';
 
 export default class UserManage extends React.Component {
@@ -21,6 +23,15 @@ export default class UserManage extends React.Component {
                 path: '/userManage'
             }],
             modal: false,
+            passwordModal: false,
+            editModal: false,
+            type: 0,
+            row: {},
+            pageconfig: {
+                currentPage: 1,
+                pageSize: 10,
+                total: [{ids: 10}]
+            },
             columns: [],
             data: [],
             query: []
@@ -31,83 +42,319 @@ export default class UserManage extends React.Component {
         this.getUsers();
     }
 
-    getUsers () {
+    // 回去人员信息
+    getUsers (obj) {
+        let { pageconfig } = this.state;
+        pageconfig = obj ? obj : pageconfig;
+
         Util.fetch({
             url: '/user/getUsers',
             type: 'get',
-            dataType: 'json'
+            dataType: 'json',
+            data: {
+                currentPage: pageconfig.currentPage,
+                pageSize: pageconfig.pageSize,
+                ...obj
+            }
         }).then((resData) => {
             if(resData && resData.returnCode === '1001'){
+                let columns = this.initColumns(resData.data.columns);
+
                 this.setState({
-                    columns: resData.data.columns,
+                    columns: columns,
                     datas: resData.data.datas,
                     query: resData.data.query,
                     levelList: resData.data.levelList,
-                    departmentList: resData.data.departmentList
+                    departmentList: resData.data.departmentList,
+                    pageconfig: resData.data.pageconfig
+                }, () => {
+                    this.initColumns(this.state.columns);
                 });
             }
         });
     }
 
-    query() {
-        console.log(Form.getData('user-manage-query'));
+    // 初始化columns
+    initColumns (columns) {
+        return (
+            columns.map((item) => {
+                if (item.prop === 'createtime') {
+                    item.render = (row, column, index) => {
+                        return <div>{Util.formatDate(new Date(row.createtime), 'yyyy-MM-dd hh:mm:ss')}</div>;
+                    }
+                } else if (item.prop === 'operate') {
+                    item.render = (row, column, index) => {
+                        return (
+                            <div>
+                                <Button size='mini' onClick={() => this.editUser(row, 1)}>查看</Button>
+                                <Button size='mini' onClick={() => this.editUser(row, 0)}>编辑</Button>
+                                <Button size='mini' onClick={() => this.deleteUser(row)}>删除</Button>
+                                <Button size='mini' onClick={() => this.updatePassword(row)}>修改密码</Button>
+                            </div>
+                        )
+                    }
+                }
+                return item;
+            })
+        );
     }
 
+    // 搜索
+    query (currentPage) {
+        const queryData = ModuleForm.getData('user-manage-query');
+
+        this.getUsers({
+            pageSize: 10,
+            currentPage: currentPage ? currentPage : 1,
+            username: queryData.username,
+            levelId: queryData.level,
+            departmentId: queryData.department,
+            startTime: queryData.startTime,
+            endTime: queryData.endTime
+        });
+    }
+
+    //  清空搜索条件
     clear() {
-        Form.clearData('user-manage-query');
+        ModuleForm.clearData('user-manage-query');
+
+        this.getUsers({
+            currentPage: 1,
+            pageSize: this.state.pageconfig.pageSize
+        });
     }
 
+    // 新增
     add() {
         this.setState({
             modal: true
         });
     }
 
-    close() {
-        this.setState({
-            modal: false
+    // 删除用户
+    deleteUser(row) {
+        MessageBox.confirm('确定删除该用户吗？', '删除用户',{
+            type: 'error'
+        }).then(() => {
+            Util.fetch({
+                url: '/user/deleteUser',
+                type: 'delete',
+                dataType: 'json',
+                data: {
+                    userId: row.id
+                }
+            }).then((resData) => {
+                if(resData && resData.returnCode === '1001'){
+                    Message({
+                        message: '操作成功',
+                        type: 'success'
+                    });
+                    this.getUsers({
+                        currentPage: 1,
+                        pageSize: 10
+                    });
+                }
+            });
+        }).catch(() => {
+            Message({
+                message: '取消操作',
+                type: 'info'
+            });
         });
     }
 
-    onsure() {
-        UserManageModal.getAddUserData();
+    //  修改密码
+    updatePassword(row) {
+        this.setState({
+            passwordModal: true,
+            row: row
+        });
+    }
 
-        PubSub.subscribe( 'USERDATA', (msg, data) => {
+    // 编辑信息
+    editUser(row, type) {
+        config.editUser.form.department = row.departmentId;
+        config.editUser.form.level = row.levelId;
+
+        if (type) {
+            config.editUser.options[0].disabled =  true;
+            config.editUser.options[1].disabled =  true;
+        } else {
+            config.editUser.options[0].disabled =  false;
+            config.editUser.options[1].disabled =  false;
+        }
+
+        this.setState({
+            editModal: true,
+            row: row,
+            type
+        });
+    }
+
+    // 关闭modal
+    close() {
+        this.setState({
+            modal: false,
+            passwordModal: false,
+            editModal: false
+        });
+    }
+
+    // 确定新增
+    onsure() {
+        ModalForm.onValid('addUser', () => {
+            let data = ModalForm.getData('addUser');
+
             Util.fetch({
                 url: '/user/addUser',
                 type: 'post',
                 data: data,
                 dataType: 'json'
-            }).then((redData) => {
-                console.log(resData);
+            }).then((resData) => {
+                if (resData.returnCode === '1001') {
+                    Message({
+                        message: '操作成功',
+                        type: 'success'
+                    });
+                    this.getUsers({
+                        currentPage: 1,
+                        pageSize: 10
+                    });
+                    ModalForm.clearData('addUser');
+                    this.close();
+                }
             });
         });
     }
 
+    // 确定修改密码
+    passwordModalOnSure() {
+        ModalForm.onValid('updatePassword', () => {
+            let data = ModalForm.getData('updatePassword');
+            data = Object.assign({}, data, {userId: this.state.row.id});
+
+            Util.fetch({
+                url: '/user/updatePassword',
+                type: 'post',
+                data: data,
+                dataType: 'json'
+            }).then((resData) => {
+                if (resData.returnCode === '1001') {
+                    Message({
+                        message: '操作成功',
+                        type: 'success'
+                    });
+                    ModalForm.clearData('updatePassword');
+                    this.close();
+                }
+            });
+        });
+    }
+
+    // 确定修改基本信息
+    editModalOnSure() {
+        if (!this.state.type) {
+            ModalForm.onValid('editUser', () => {
+                let data = ModalForm.getData('editUser');
+                data = Object.assign({}, data, {userId: this.state.row.id});
+    
+                Util.fetch({
+                    url: '/user/editUser',
+                    type: 'post',
+                    data: data,
+                    dataType: 'json'
+                }).then((resData) => {
+                    if (resData.returnCode === '1001') {
+                        Message({
+                            message: '操作成功',
+                            type: 'success'
+                        });
+                        ModalForm.clearData('editUser');
+                        this.getUsers();
+                        this.close();
+                    }
+                });
+            });
+        } else {
+            this.close();
+        }
+    }
+
+    // 翻页
+    onChangeCurrentPage (currentPage) {
+        this.query(currentPage);
+    }
+
     render() {
-        const { breadList, columns, datas, query, modal, levelList, departmentList } = this.state;
+        const { breadList, columns, datas, query, modal, passwordModal, editModal, type, levelList, departmentList, pageconfig } = this.state;
 
         return (
             <div className='userManage-page flex flex-column-direction'>
-                {
-                    modal ? (
-                        <MoudleModal
-                            title={'新增人员'}
-                            callback = {{
-                                close: () => this.close(),
-                                onsure: () => this.onsure()
-                            }}
-                        >
-                            <UserManageModal levelList={levelList} departmentList={departmentList}/>
-                        </MoudleModal>
-                    ) : null
-                }
-                
+                <div className='modal-content'>
+                    {/* 弹出框*/}
+                    <ModuleModal
+                        title={'新增人员'}
+                        callback = {{
+                            close: () => this.close(),
+                            onsure: () => this.onsure()
+                        }}
+                        style={{
+                            display: modal ? 'block' : 'none'
+                        }}
+                    >
+                        <ModalForm
+                            formName='addUser'
+                            form={config.addUser.form}
+                            rules={config.addUser.rules}
+                            options={config.addUser.options}
+                            levelList={levelList}
+                            departmentList={departmentList}
+                        />
+                    </ModuleModal>
+
+                    <ModuleModal
+                        title={'修改密码'}
+                        callback = {{
+                            close: () => this.close(),
+                            onsure: () => this.passwordModalOnSure()
+                        }}
+                        style={{
+                            display: passwordModal ? 'block' : 'none'
+                        }}
+                    >
+                        <ModalForm
+                            formName='updatePassword'
+                            form={config.updatePassword.form}
+                            rules={config.updatePassword.rules}
+                            options={config.updatePassword.options}
+                        />
+                    </ModuleModal>
+
+                    <ModuleModal
+                        title={type ? '查看信息' : '编辑信息'}
+                        callback = {{
+                            close: () => this.close(),
+                            onsure: () => this.editModalOnSure()
+                        }}
+                        style={{
+                            display: editModal ? 'block' : 'none'
+                        }}
+                    >
+                        <ModalForm
+                            formName='editUser'
+                            form={config.editUser.form}
+                            rules={config.editUser.rules}
+                            options={config.editUser.options}
+                            levelList={levelList}
+                            departmentList={departmentList}
+                        />
+                    </ModuleModal>
+                </div>
 
                 <Breadcrumb breadList={breadList} />
 
                 <div className='userManage-content bg-white p-15 m-t-15'>
-                    <MoudleForm
+                    <ModuleForm
                         form='user-manage-query'
                         data={query}
                         callback={{
@@ -123,156 +370,16 @@ export default class UserManage extends React.Component {
                         data={datas}
                         border={true}
                     />
+
+                    <div className='m-t-10 flex flex-center-justify'>
+                        <Pagination
+                            layout='prev, pager, next'
+                            currentPage={pageconfig.currentPage}
+                            total={pageconfig.total[0].ids}
+                            onCurrentChange={(currentPage) => this.onChangeCurrentPage(currentPage)}
+                        />
+                    </div>
                 </div>
-            </div>
-        );
-    }
-}
-
-class UserManageModal extends Component {
-    static forms = {};
-    static validing = false;
-
-    static getAddUserData () {
-        UserManageModal.forms.validate();
-    }
-
-    // 添加表单数据到forms对象中
-    static add (form) {
-        UserManageModal.forms = form;
-    }
-
-    // 删除某个表单
-    static remove (key) {
-        delete UserManageModal.forms;
-    }
-    
-    constructor (props) {
-        super(props);
-        UserManageModal.instance = this;
-
-        this.state = {
-            form: {
-                username: '',
-                password: '',
-                checkPassword: '',
-                department: '',
-                level: ''
-            },
-            rules: {
-                username: [
-                    { required: true, message: '请输入用户名', trigger: 'blur' }
-                ],
-                password: [
-                    { required: true, message: '请输入密码', trigger: 'blur' }
-                ],
-                checkPassword: [
-                    { required: true, message: '请输入密码', trigger: 'blur' },
-                    { 
-                        validator: (rule, value, callback) => {
-                            if (value === '') {
-                                callback(new Error('请再次输入密码'));
-                            } else if (value !== this.state.form.password) {
-                                callback(new Error('两次输入密码不一致!'));
-                            } else {
-                                callback();
-                            }
-                        } 
-                    }
-                ],
-                level: [
-                    { required: true, message: '请选择职位', trigger: 'blur' },
-                    { 
-                        validator: (rule, value, callback) => {
-                            if (value === '') {
-                                callback(new Error('请选择职位'));
-                            } else {
-                                callback();
-                            }
-                        } 
-                    }
-                ]
-            },
-            departmentList: props.departmentList,
-            levelList: props.levelList
-        };
-
-        this.dom = null;
-    }
-
-    componentWillMount () {
-        UserManageModal.add(this);
-    }
-
-    componentWillUnmount () {
-        UserManageModal.remove();
-    }
-
-    getData() {
-        return this.state.form;
-    }
-
-    validate() {
-        const that = this;
-
-        this.dom.validate((valid) => {
-            if (valid) {
-                PubSub.publish('USERDATA', that.state.form);
-            }
-        });
-    }
-
-    initRef (ref) {
-        this.dom = ref;
-    }
-
-    onChange (key, value) {
-        this.state.form[key] = value;
-        this.forceUpdate();
-    }
-
-    render () {
-        const { form, rules, departmentList, levelList } = this.state;
-
-        return (
-            <div className='user-manage-modal'>
-                <Form ref={(ref) => this.initRef(ref)} model={form} labelWidth='80' rules={rules}>
-                    <Form.Item label='用户名称' prop='username'>
-                        <Input value={form.username} onChange={this.onChange.bind(this, 'username')}></Input>
-                    </Form.Item>
-
-                    <Form.Item label='密码' prop='password'>
-                        <Input type='password' value={form.password} onChange={this.onChange.bind(this, 'password')}></Input>
-                    </Form.Item>
-
-                    <Form.Item label='确认密码' prop='checkPassword'>
-                        <Input type='password' value={form.checkPassword} onChange={this.onChange.bind(this, 'checkPassword')}></Input>
-                    </Form.Item>
-
-                    <Form.Item label='选择部门' prop='department'>
-                        <Select value={form.department} onChange={this.onChange.bind(this, 'department')}>
-                            {
-                                departmentList.map((item, index) => {
-                                    return (
-                                        <Select.Option label={item.label} value={item.value + ''} key={index}></Select.Option>
-                                    );
-                                })
-                            }
-                        </Select>
-                    </Form.Item>
-
-                    <Form.Item label='选择职位' prop='level'>
-                        <Select value={form.level} onChange={this.onChange.bind(this, 'level')}>
-                            {
-                                levelList.map((item, index) => {
-                                    return (
-                                        <Select.Option label={item.label} value={item.value + ''} key={index}></Select.Option>
-                                    );
-                                })
-                            }
-                        </Select>
-                    </Form.Item>
-                </Form>
             </div>
         );
     }
