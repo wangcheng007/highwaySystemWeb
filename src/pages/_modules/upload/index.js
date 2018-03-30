@@ -98,8 +98,6 @@ export default class Upload extends Component {
                 shard_file.push(file.slice( i * MAX_SHARD_FILE_SIZE, (i +1) * MAX_SHARD_FILE_SIZE));
             }
 
-            debugger;
-
             shard_file.forEach((item, index) => {
                 const fd = new FormData();
                 const xhr = new XMLHttpRequest();
@@ -144,7 +142,7 @@ export default class Upload extends Component {
                     reject(e);
                 };
     
-                xhr.open('POST', url, true);
+                xhr.open('POST', url, false);
                 xhr.withCredentials = true;
                 xhr.send(fd);
             });
