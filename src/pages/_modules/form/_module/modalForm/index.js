@@ -107,7 +107,7 @@ export default class ModalForm extends Component {
                             if (item.type === 'input') {
                                 return (
                                     <Form.Item label={item.label} clearable={true} prop={item.name} key={index}>
-                                        <Input type={item.category} value={form[item.name]} placeholder={item.placeholder} onChange={this.onChange.bind(this, item.name)}></Input>
+                                        <Input type={item.category} value={form[item.name]} placeholder={item.placeholder} onChange={this.onChange.bind(this, item.name)} disabled={item.disabled}></Input>
                                     </Form.Item>
                                 );
                             } else if (item.type === 'select') {
